@@ -7,19 +7,23 @@ import socket
 import sys
 import threading
 import time
-
+import configparser
+from pathlib import Path
 from pprint import pprint
-
-# Your InfluxDB Settings
-from datetime import datetime
-
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-bucket = "gpsd"
+_SCRIPT_DIR = Path(__file__).parent.absolute()
+_PACKAGE_ROOT = _SCRIPT_DIR.parent
 
 # Number of seconds between updates
 update_interval = 10
+
+# query bucket from config file
+config_file = str(_PACKAGE_ROOT / 'config.ini')
+config = configparser.ConfigParser()
+config.read(config_file)
+bucket = config.get('influx2', 'bucket')
 
 # --------------------------------------------------------------------------------
 # Do not change anything below this line
@@ -54,10 +58,11 @@ class GpsPoller(threading.Thread):
     while gpsp.running:
       gpsd.next()
 
+
 # --------------------------------------------------------------------------------
 # GPS Loop
-if __name__ == '__main__':
-    with InfluxDBClient.from_config_file("config.ini") as client:
+def main():
+    with InfluxDBClient.from_config_file(config_file) as client:
         # Create the thread
         gpsp = GpsPoller()
         try:
@@ -331,3 +336,7 @@ if __name__ == '__main__':
             gpsp.running = False
             gpsp.join() # wait for the thread to finish what it's doing
             sys.exit(1) # exit with error code
+
+
+if __name__ == '__main__':
+    main()

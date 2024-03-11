@@ -23,12 +23,11 @@ Change the 'host' variable to change what hostname the data is reported for.
 ## Installation
 Requires gpsd libraries and influxdb-client
 ```
-pip install influxdb-client
+sudo pip3 install influxdb-client gps
 ```
 Then pull into /opt
 ```
 cd /opt
-
 sudo git clone https://github.com/longview/gpsd_influx2.git
 ```
 It loads the configuration from config.ini, the format is standard. A sample file in included, edit it to add your database details & API key.
